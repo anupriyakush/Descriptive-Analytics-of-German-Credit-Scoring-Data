@@ -1,0 +1,218 @@
+---
+title: "Credit risk EDA"
+author: "Anupriya Kushwanshi"
+date: "May 27, 2019"
+output: html_document
+---
+Insights:
+1 is good and 2 is bad.
+
+
+.	70% customers are good and 30% are bad.  
+.	50% of "good" customers do not have checking accounts and 45% defaulters have less than 0 Deutsche Mark in their checking accounts.  
+.	51% "good" customers paid existing credits till now and nearly 30% have critical account or other credits existing (not at this bank). More than 56% defaulters paid existing credits till now.  
+.	For good customers, most common purpose for taking the loan is radio/television whereas for defaulters it's car.  
+.	More than 50% good customers and nearly 70% bad customers have less than 100 Deutsche Mark in their accounts.  
+.	Employment is almost well distributed among the customers with 1-4 year of work experience having a better share. Very few(~7.6%) are unemployed.  
+.	57% good customers and 49% bad customers single males.  
+.	91% good and bad customers have no other debtors.  
+.	31% good customers have properties in the form of real state and 33% in car. The proportion is almost same among the bad customers.  
+.	84% of good customers and 75% of bad customers have no other installment plans. 
+.	75% good customers and 62% bad customers own a house.  
+.	64% good customers and 62% bad customers are skilled employees or officials.  
+.	95% good customers and 99% bad customers are foreign employees.  
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+
+german_credit = read.table("http://archive.ics.uci.edu/ml/machine-learning-databases/statlog/german/german.data")
+colnames(german_credit)=c("chk_acct","duration","credit_his","purpose","amount","saving_acct","present_emp","installment_rate","sex","other_debtor","present_resid","property","age","other_install","housing","n_credits","job","n_people","telephone","foreign","response")
+head(german_credit)
+```
+```{r}
+str(german_credit)
+```
+
+  
+```{r}
+library(tidyverse)
+(nrow(filter(german_credit, chk_acct == 'A11' & response == 2))/nrow(filter(german_credit,response == 2 )))*100
+(nrow(filter(german_credit, chk_acct == 'A14' & response == 1))/nrow(filter(german_credit,response == 1 )))*100
+
+german_credit%>%
+ggplot(aes(response, fill=chk_acct))+geom_bar()
+```
+Status of existing checking account  
+A11 : ... < 0 DM  
+A12 : 0 <= ... < 200 DM  
+A13 : ... >= 200 DM / salary assignments for at least 1 year  
+A14 : no checking account
+
+  
+```{r}
+(nrow(filter(german_credit, credit_his == 'A32' & response == 2))/nrow(filter(german_credit,response == 2 )))*100
+(nrow(filter(german_credit, credit_his == 'A32' & response == 1))/nrow(filter(german_credit,response == 1 )))*100
+
+german_credit%>%
+ggplot(aes(response, fill=credit_his))+geom_bar()
+```
+
+Credit history  
+A30 : no credits taken/ all credits paid back duly  
+A31 : all credits at this bank paid back duly  
+A32 : existing credits paid back duly till now  
+A33 : delay in paying off in the past  
+A34 : critical account/ other credits existing (not at this bank)
+```{r}
+german_credit%>%
+ggplot(aes(response, fill=purpose))+geom_bar()
+```
+
+
+Purpose 
+A40 : car (new) 
+A41 : car (used) 
+A42 : furniture/equipment 
+A43 : radio/television 
+A44 : domestic appliances 
+A45 : repairs 
+A46 : education 
+A47 : (vacation - does not exist?) 
+A48 : retraining 
+A49 : business 
+A410 : others 
+
+```{r}
+german_credit%>%
+ggplot(aes(response, fill=saving_acct))+geom_bar()
+```
+Savings account/bonds 
+A61 : ... < 100 DM 
+A62 : 100 <= ... < 500 DM 
+A63 : 500 <= ... < 1000 DM 
+A64 : .. >= 1000 DM 
+A65 : unknown/ no savings account 
+
+```{r}
+(nrow(filter(german_credit, present_emp == 'A71' & response == 2))/nrow(filter(german_credit,response == 2 )))*100
+
+german_credit%>%
+ggplot(aes(response, fill=present_emp))+geom_bar()
+```
+Present employment since 
+A71 : unemployed 
+A72 : ... < 1 year 
+A73 : 1 <= ... < 4 years 
+A74 : 4 <= ... < 7 years 
+A75 : .. >= 7 years 
+
+```{r}
+(nrow(filter(german_credit, sex == 'A93' & response == 2))/nrow(filter(german_credit,response == 2 )))*100
+(nrow(filter(german_credit, sex == 'A93' & response == 1))/nrow(filter(german_credit,response == 1 )))*100
+
+german_credit%>%
+ggplot(aes(response, fill=sex))+geom_bar()
+```
+Personal status and sex 
+A91 : male : divorced/separated 
+A92 : female : divorced/separated/married 
+A93 : male : single 
+A94 : male : married/widowed 
+A95 : female : single 
+```{r}
+(nrow(filter(german_credit, other_debtor == 'A101' & response == 2))/nrow(filter(german_credit,response == 2 )))*100
+(nrow(filter(german_credit, other_debtor == 'A101' & response == 1))/nrow(filter(german_credit,response == 1 )))*100
+
+german_credit%>%
+ggplot(aes(response, fill=other_debtor))+geom_bar()
+```
+Other debtors / guarantors 
+A101 : none 
+A102 : co-applicant 
+A103 : guarantor 
+```{r}
+(nrow(filter(german_credit, property == 'A121' & response == 1))/nrow(filter(german_credit,response == 1 )))*100
+(nrow(filter(german_credit, property == 'A123' & response == 1))/nrow(filter(german_credit,response == 1 )))*100
+
+
+german_credit%>%
+ggplot(aes(response, fill=property))+geom_bar()
+```
+A121 : real estate 
+A122 : if not A121 : building society savings agreement/ life insurance 
+A123 : if not A121/A122 : car or other, not in attribute 6 
+A124 : unknown / no property 
+```{r}
+german_credit%>%
+ggplot(aes(response, fill=property))+geom_bar()
+```
+```{r}
+(nrow(filter(german_credit, other_install == 'A143' & response == 2))/nrow(filter(german_credit,response == 2 )))*100
+(nrow(filter(german_credit, other_install == 'A143' & response == 1))/nrow(filter(german_credit,response == 1 )))*100
+
+german_credit%>%
+ggplot(aes(response, fill=other_install))+geom_bar()
+```
+Other installment plans 
+A141 : bank 
+A142 : stores 
+A143 : none 
+```{r}
+(nrow(filter(german_credit, housing == 'A152' & response == 2))/nrow(filter(german_credit,response == 2 )))*100
+(nrow(filter(german_credit, housing == 'A152' & response == 1))/nrow(filter(german_credit,response == 1 )))*100
+
+german_credit%>%
+ggplot(aes(response, fill=housing))+geom_bar()
+```
+Housing 
+A151 : rent 
+A152 : own 
+A153 : for free 
+
+
+```{r}
+(nrow(filter(german_credit, job == 'A173' & response == 2))/nrow(filter(german_credit,response == 2 )))*100
+(nrow(filter(german_credit, job == 'A173' & response == 1))/nrow(filter(german_credit,response == 1 )))*100
+
+german_credit%>%
+ggplot(aes(response, fill=job))+geom_bar()
+```
+Job 
+A171 : unemployed/ unskilled - non-resident 
+A172 : unskilled - resident 
+A173 : skilled employee / official 
+A174 : management/ self-employed/ 
+highly qualified employee/ officer 
+
+```{r}
+(nrow(filter(german_credit, foreign == 'A201' & response == 2))/nrow(filter(german_credit,response == 2 )))*100
+(nrow(filter(german_credit, foreign == 'A201' & response == 1))/nrow(filter(german_credit,response == 1 )))*100
+
+
+german_credit%>%
+ggplot(aes(response, fill=foreign))+geom_bar()
+```
+
+foreign worker 
+A201 : yes 
+A202 : no 
+```{r}
+(nrow(filter(german_credit,  response == 2))/nrow(german_credit))*100
+(nrow(filter(german_credit,  response == 1))/nrow(german_credit))*100
+
+german_credit$response <- as.factor(german_credit$response)
+german_credit%>%
+ggplot(aes(age))+geom_bar(aes(fill=response))+facet_wrap(~response)
+
+```
+
+```{r}
+
+german_credit%>%
+ggplot(aes(amount))+geom_histogram(aes(fill=response))+facet_wrap(~response)
+
+```
